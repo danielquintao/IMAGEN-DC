@@ -25,30 +25,7 @@ def join(*t):
                 for key in d:
                         d[key] += [None]*(maxlen-len(d[key]))
         #Arrayisation phase
-        #d[-np.inf] = d['ID'] #Python 3. isn't able to compare str with int
-        #del d['ID']
         l = list(d.values())
-        #print([i[0] for i in l])
         l = sorted(l,key=itemgetter(0))
         l[0][0] = 'ID'
-        #print("\n\n")
-        #print([i[0] for i in l])
-        #l.insert(0,l[-1])
-        #del l[-1]
         return l
-"""
-t1 = [[0,45,45],
-		[1,78,45],
-		[2,78,78]]
-
-t2 = [[0,78,78],
-		[4,78,78]]
-
-t3 = [[2,89,89],
-		[3,25,25]]
-
-t4 = [[3,47,47],
-		[4,89,89]]
-
-print(join(t1,t2,t3,t4))
-"""
