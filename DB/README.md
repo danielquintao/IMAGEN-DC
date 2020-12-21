@@ -13,7 +13,7 @@ where rows are ids of people (int), columns are names of questions or volumetric
 float values (will first try to cast it to float, if it fails it will check in the conv dictionnary [get_table.py file] and if the value
 isn't in it it will put np.nan in this spot). Blank values will be put to np.inf (np.inf semantics is similar to a missing value semantics).
 
-Names of files are very important : the format need to be [questionnaire-name]-[timestep](.xlsx|.xlsm) where questionnaire-name is the name
+Names of files are very important : the format need to be [questionnaire-name]-[timestep](.xlsx\|.xlsm) where questionnaire-name is the name
 of your questionnaire and timestep is among ['bas','fu1','fu2','fu3'].
 
 The compiler will load all files (get numpy array from excel files et cast non float values), join everything all arrays and align names.
