@@ -69,10 +69,3 @@ def correct_surps(db):
 
 def correct(db):
     correct_surps(db)
-
-if __name__ == "__main__":
-    tf,time,ind,questions = load_db()
-    tf,questions= score_extractor(tf,questions)
-    #print(questions)
-    with open("3darray_scores.pickle","wb") as f:
-        pickle.dump([tf,time,ind,questions],f)
