@@ -12,7 +12,8 @@ Install instruction :
 ```$ python compile.y ```
 
 4 - Access the database :
-``` import database as db
+```python
+    import database as db
     db = database.Database()
     db.load_from_pickle("db.p") 
     #Questions names
