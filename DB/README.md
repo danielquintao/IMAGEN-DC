@@ -37,4 +37,4 @@ Names of questions in the database will slightly change from questionnaire file 
  Once all files are processed and joint the alignment process begins and it will try to check if qA column also exists in qn-fu2 and qn-fu3.
  If it does it will align columns else it will fill missing timesteps from [bas,fu1,fu2,fu3] by np.inf (missing data).
  
- At the end you get a 3d array with all your data aligned and np.inf where you miss data.
+ In the end you get a 3d array with all your data aligned and np.inf where you miss data.
