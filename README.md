@@ -9,7 +9,7 @@ Install instruction :
 2 - Fill your DB/folder with .xlsx / .xlsm files.
 
 3 - Compile the DB/ folder into a pickle 3d array :
-```$ python compile.y ```
+```$ python compile.py ```
 
 4 - Access the database :
 ```python
