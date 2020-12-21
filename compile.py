@@ -8,6 +8,6 @@ db.load_from_DB_folder()
 #Correct known mistakes from xlsx files
 correct(db)
 #Compute scores
-compute_score(db)
+#compute_score(db) #Not usefull for volumetric data
 #Save
 db.save("db.p")

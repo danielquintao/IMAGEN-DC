@@ -290,8 +290,42 @@ class Database(Loadable,Indexable,Searchable):
 if __name__=='__main__':
     #Load DB
     db = Database()
-    db.load_from_pickle("t2.p")
+    db.load_from_pickle("db.p")
     print("shape",db.tf.shape)
     print("timesteps : ",db.time)
     print("ind : ",db.ind)
-    print("questions : ",db.q)
+    print("first 5 questions :",db.q[:5],"nb questions : ",db.q.shape)
+
+    #Usefull methods :
+    
+    #Projections
+    db2 = db.get_question("lacc_gmtrans") #It will return a new database (be carefull it duplicates internal arrays !) with only one question
+    print("projection shape",db2.tf.shape)
+    print("projection timesteps : ",db2.time)
+    print("projection ind : ",db2.ind)
+    print("projection questions : ",db2.q)
+    db2.clean() #Will remove people with missing data
+    print("clean projection shape",db2.tf.shape)
+    print("clean projection timesteps : ",db2.time)
+    print("clean projection ind : ",db2.ind)
+    print("clean projection questions : ",db2.q)
+    
+    db3 = db.get_questions(['lacc_gmtrans','lacc_gmlong']) #You can also ask for several questions
+    print("projection2 shape",db3.tf.shape)
+    db3.clean()
+    print("clean project2 shape",db3.tf.shape)
+
+    #Get_index
+    ind = db.get_index("lacc_gmtrans") #Returns index of the question
+    print("get_index",ind)
+    inds = db.get_index(["lacc_gmtrans","lacc_gmlong"]) #Returns indexs of questions
+    print("get_index",inds)
+
+    #SLicing
+    db4 = db[[0,1],15:28,:] #You can slice databases
+    print("slicing",db4.tf.shape) #Be carefull it also duplicates internal arrays !
+
+    #Populations
+    import pop
+    pop.add_depressedfu3(db) #Add a column with 0s and 1s to flag depressed people at fu3
+    print("first flags for depressed people",db.get_question('_depressedfu3').tf[0,:40,0])

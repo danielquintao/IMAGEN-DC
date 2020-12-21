@@ -68,4 +68,7 @@ def correct_surps(db):
     db.tf[3,:,l] = 5-db.tf[3,:,l]
 
 def correct(db):
-    correct_surps(db)
+    try:
+        correct_surps(db)
+    except:
+        print("SURPS NOT CORRECTED")
