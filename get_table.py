@@ -41,71 +41,6 @@ def get_table(f):
                         out[0][i] = str(time)+"_"+l[0]+"_"+l2[0]
         print("loaded table {} : ({},{}) timestep {}".format(f,len(out),len(out[0]),time))
         return out
-
-def split_sheet(s):
-        #Get split points
-        split_points = {}
-        for ir,r in enumerate(s.iter_rows()):
-                for i,c in enumerate(r):
-                        color = c.fill.start_color.index
-                        if color in [6,9]:
-                                split_points[i] = True
-        split_points = sorted(list(split_points))
-        print(split_points)
-        #Save workbooks
-        for isp,sp in enumerate(split_points):
-                print(isp,sp)
-                wb = Workbook()
-                s2 = wb.active
-                for ir,r in enumerate(s.iter_rows(column_offset=sp)):
-                        for ic,c in enumerate(r):
-                                if isp < len(split_points)-1 and ic+sp == split_points[isp+1]:
-                                        break
-                                s2.cell(row=ir+1,column=ic+1).value = c.value
-                                #s2.cell(row=ir+1,column=ic+1).fill.start_color.index = c.fill.start_color.index
-                wb.save("DB/_"+str(sp)+".xlsx")
-
-def split_volumetric_data(f):
-        wb = load_workbook(f)
-        s = wb.active
-        wb1 = Workbook()
-        s1 = wb1.active
-        wb2 = Workbook()
-        s2 = wb2.active
-        wb3 = Workbook()
-        s3 = wb3.active
-        mr = s.max_row
-        mc = s.max_column
-        c1 = 1
-        c2 = 1
-        c3 = 1
-        for i in range(1,mr+1):
-                for j in range(1,mc+1):
-                        c = s.cell(row=i,column=j)
-                        val = c.value
-                        if j == 1 and i > 1:
-                                val = re.findall('0+(\w*)[_s]',c.value)[0]
-                                val = int(val)
-                        if i == 1 or i%3 == 2:
-                                s1.cell(row=c1,column=j).value = val
-                        if i == 1 or i%3 == 0:
-                                s2.cell(row=c2,column=j).value = val
-                        if i == 1 or i%3 == 1:
-                                s3.cell(row=c3,column=j).value = val
-                if i%3==2 or i ==1:
-                        c1 += 1
-                if i%3==0 or i == 1:
-                        c2 += 1
-                if i%3==1 or i==1:
-                        c3 += 1
-        f = f[3:-5]
-        s1.cell(row=1,column=1).value = 'ID'
-        s2.cell(row=1,column=1).value = 'ID'
-        s3.cell(row=1,column=1).value = 'ID'
-        wb1.save('DB/'+f+'-fu2.xlsx')
-        wb2.save('DB/'+f+'-fu3.xlsx')
-        wb3.save('DB/'+f+'-bas.xlsx')
-        
                 
 def find_matching_columns(t):
         def match_form(n):
@@ -181,8 +116,3 @@ def find_matching_columns(t):
         print(timesteps)
         print(ind)
         return tf,timesteps,ind,questions
-
-
-if __name__=='__main__':
-        split_volumetric_data('DB/GM.xlsx')
-        split_volumetric_data('DB/CSF.xlsx')
