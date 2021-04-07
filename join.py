@@ -18,9 +18,9 @@ def join(*t):
         for ti in t:
                 for r in ti:
                         if r[0] == 'ID':
-                                r[0] = -np.inf
+                                r[0] = -np.inf # to help sorting later
                         add_dict(d,r,offset=maxlen-1)
-                maxlen += len(ti[0])-1
+                maxlen += len(ti[0])-1 # "-1" because the column 'ID' is common to all rows
                 #Normalisation phase
                 for key in d:
                         d[key] += [None]*(maxlen-len(d[key]))

@@ -51,7 +51,7 @@ class Loadable:
         """ Build the db from all xslx and xslm files in DB/ folder """
         ld = os.listdir('DB/')
         ld = ['DB/'+i for i in ld if i[-5:] ==".xlsx" or i[-5:] == ".xlsm"]
-        self.load_from_xlsx(ld,compute_scores=compute_scores)
+        self.load_from_xlsx(ld,compute_scores=compute_scores) # this calls the homonymous function of the class Database (which inherits from Loadable)
         
     def save(self,fname):
         """ Save the database in a pickle file """

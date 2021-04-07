@@ -34,42 +34,38 @@ def get_table(f):
         l = re.split("/",f)
         l = re.split("\.",l[1])                
         l2 = re.split('-',l[0])
-        if len(l) != 2:
-                assert False #File name doesn't match the format [questionnaire_name]-(bas|fu1|fu2|fu3)
+        assert len(l2) == 2 #File name doesn't match the format [questionnaire_name]-(bas|fu1|fu2|fu3)
         time = ['bas','fu1','fu2','fu3'].index(l2[1])
-        for i in range(len(out[0])):
-                if i != 0: #Don't change ID
-                        name = str(out[0][i])
-                        l = re.split('\s',name)
-                        out[0][i] = str(time)+"_"+l[0]+"_"+l2[0]
+        for i in range(1, len(out[0])): #starting from 1 -- don't change ID
+                name = str(out[0][i])
+                l = re.split('\s',name)
+                out[0][i] = str(time)+"_"+l[0]+"_"+l2[0]
         print("loaded table {} : ({},{}) timestep {}".format(f,len(out),len(out[0]),time))
         return out
                 
 def find_matching_columns(t):
-        def match_form(n):
+        def match_form(n): # n is a string
                 return n[2:].lower(),int(n[0])
         #Get matching names
         names = t[0]
         d_names = {} #Match dictionary
-        match_names = [] #Names matched with others
-        max_dim = 0 #Maximum dimension of
+        # match_names = [] # Names matched with others -- debug
         for index,n in enumerate(names):
                 if index != 0:
                         m_form,time = match_form(n)
-                else:
-                        m_form,time = n,-1
+                else: # index == 0 -> n is an ID
+                        m_form,time = n,-1  # -1 -> IDs will be inserted as 'fu3' in the final tensor
                 try:
                         d_names[m_form].append((index,time))
-                        match_names.append(n)
-                        max_dim = max(max_dim,len(d_names[m_form]))
+                        # match_names.append(n) -- debug
                 except KeyError:
                         d_names[m_form] = [(index,time)]
         #print(d_names)
         #print(match_names,len(match_names))
         #Add dimensions
         nb_timesteps = 4
-        nb_ind = len(t)
-        nb_questions = len(d_names)
+        nb_ind = len(t) # includes the header 'ID' despite the name
+        nb_questions = len(d_names) # includes the question name despite the name
         questions = sorted(list(d_names))
         tf = np.full((nb_timesteps,nb_ind,nb_questions),np.inf)
         conv = {"t":1,"f":0,"C":1,"fr":0,"en":1,"de":2,"PARIS":0,"NOTTINGHAM":1,
@@ -78,10 +74,6 @@ def find_matching_columns(t):
         for i,c in enumerate(["E","D","C","B","A"]):
                 for j,add in enumerate(["-","","+"]):
                         conv[c+add] = i*3+j
-        #Sometimes there are space after those patterns
-        l = list(conv.keys())
-        for k in l:
-                conv[k+' '] = conv[k]
         for index_ind in range(1,nb_ind):
                 for index_q in range(nb_questions):
                         q_name = questions[index_q]
@@ -101,7 +93,8 @@ def find_matching_columns(t):
                                                 tf[time,index_ind,index_q] = value
                                         except ValueError:
                                                 try:
-                                                        value = conv[value]
+                                                        assert isinstance(value, str)
+                                                        value = conv[value.strip()] # strip --> remove blank spaces at extremities ('B+ ' -> 'B+')
                                                         tf[time,index_ind,index_q] = value
                                                 except KeyError:
                                                         print("error : '{}' not understood".format(value))
