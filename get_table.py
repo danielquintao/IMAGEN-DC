@@ -5,8 +5,11 @@ def get_table(f):
         wb = load_workbook(f)
         s = wb.active
         def iter_rows(s):
+                empty_space = re.compile('\\s+')
                 for row in s.iter_rows():
                         if not(row[0].value is None):
+                                if isinstance(row[0].value, str) and empty_space.fullmatch(row[0].value):
+                                        continue
                                 yield [cell.value if not(cell.value is None) else np.inf for cell in row]
         #out = [[c.value for c in l] for l in s.rows]
         out = list(iter_rows(s))
