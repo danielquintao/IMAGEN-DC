@@ -227,7 +227,8 @@ class Database(Loadable,Indexable,Searchable):
         """ Return a copy of the database """
         db = Database()
         Loadable.paste(self,db)
-        db.compute_indexs(db.q)
+        db.compute_indexs(db.q) # not needed if we apply __getitem__ (db[...]) but necessary otherwise
+        db.compute_names(db.q) # not needed if we apply __getitem__ (db[...]) but necessary otherwise
         return db
     def __getitem__(self,indexs):
         """ Makes it possible to index the database as it is possible with numpy arrays. However be carefull each time you do this it copies the database """
@@ -246,7 +247,7 @@ class Database(Loadable,Indexable,Searchable):
         if isinstance(ql,str):
             ql = [ql]
         q_inds = self.get_index(ql)
-        return self.tf[:,:,q_inds]
+        return self.copy()[:,:,q_inds]
     def get_question(self,q):
         """ Alias for get_questions """
         return self.get_questions(q)
