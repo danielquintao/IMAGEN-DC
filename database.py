@@ -188,7 +188,7 @@ class Database(Loadable,Indexable,Searchable):
         self.compute_indexs(self.q)
         self.compute_names(self.q)
         #Correct few questions due to errors in the database (especially fu3
-        correct(self)
+        # correct(self) # -- already called from compile.py
         #Computes scores
         if compute_scores:
             compute_score(self)
@@ -246,7 +246,7 @@ class Database(Loadable,Indexable,Searchable):
         if isinstance(ql,str):
             ql = [ql]
         q_inds = self.get_index(ql)
-        return self[:,:,q_inds]
+        return self.tf[:,:,q_inds]
     def get_question(self,q):
         """ Alias for get_questions """
         return self.get_questions(q)

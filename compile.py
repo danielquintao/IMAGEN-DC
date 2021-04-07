@@ -10,4 +10,4 @@ correct(db)
 #Compute scores
 #compute_score(db) #Not usefull for volumetric data
 #Save
-db.save("db.p")
+# db.save("db.p")
