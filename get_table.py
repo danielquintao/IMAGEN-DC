@@ -16,23 +16,24 @@ def get_table(f):
         #Post process 0 : Change [0][0] to ID
         out[0][0] = "ID"
         #Post process 1 : remove doubles (duplicated lines -> happens in some files)
-        def fusion(l1,l2):
-                l = l1
-                for i in range(len(l)):
-                        if l[i] is None:
-                                l[i] = l2[i]
-                return l
-        to_del = []
+        # def fusion(l1,l2):
+        #         l = l1
+        #         for i in range(len(l)):
+        #                 if l[i] is None:
+        #                         l[i] = l2[i]
+        #         return l
+        # to_del = []
         for i in range(len(out)-1):
-                if out[i][0] == out[i+1][0]:
-                        out[i] = fusion(out[i],out[i+1])
-                        to_del += [i+1]
-        to_del.sort(reverse=True)
-        for i in to_del:
-                del out[i]
+                assert out[i][0] != out[i+1][0]
+                # if out[i][0] == out[i+1][0]:
+                        # out[i] = fusion(out[i],out[i+1])
+                        # to_del += [i+1]
+        # to_del.sort(reverse=True)
+        # for i in to_del:
+        #         del out[i]
         #Post process 2 : add timestep and questionnaire name to labels and cut everything after the first space
         l = re.split("/",f)
-        l = re.split("\.",l[1])                
+        l = re.split("\.",l[-1])                
         l2 = re.split('-',l[0])
         assert len(l2) == 2 #File name doesn't match the format [questionnaire_name]-(bas|fu1|fu2|fu3)
         time = ['bas','fu1','fu2','fu3'].index(l2[1])
@@ -104,9 +105,10 @@ def find_matching_columns(t):
         tf = np.delete(tf,0,axis=1)
         print("-",tf[:,0,0])
         print(tf.shape)
-        timesteps = ["bas","fu1","fu2","fu3"]
+        timesteps = np.array(["bas","fu1","fu2","fu3"]).astype(str)
         ind = np.array(t)[:,0]
         ind = np.delete(ind,0)
+        questions = np.array(questions).astype(str)
         print(tf)
         print(questions)
         print(timesteps)

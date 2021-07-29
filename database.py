@@ -291,7 +291,7 @@ class Database(Loadable,Indexable,Searchable):
 if __name__=='__main__':
     #Load DB
     db = Database()
-    db.load_from_pickle("db.p")
+    db.load_from_DB_folder() # db.load_from_pickle("db.p")
     print("shape",db.tf.shape)
     print("timesteps : ",db.time)
     print("ind : ",db.ind)
@@ -311,7 +311,7 @@ if __name__=='__main__':
     print("clean projection ind : ",db2.ind)
     print("clean projection questions : ",db2.q)
     
-    db3 = db.get_questions(['lacc_gmtrans','lacc_gmlong']) #You can also ask for several questions
+    db3 = db.get_questions(['lacc_gmtrans','lacc_long726s']) #You can also ask for several questions
     print("projection2 shape",db3.tf.shape)
     db3.clean()
     print("clean project2 shape",db3.tf.shape)
@@ -319,7 +319,7 @@ if __name__=='__main__':
     #Get_index
     ind = db.get_index("lacc_gmtrans") #Returns index of the question
     print("get_index",ind)
-    inds = db.get_index(["lacc_gmtrans","lacc_gmlong"]) #Returns indexs of questions
+    inds = db.get_index(["lacc_gmtrans","lacc_long726s"]) #Returns indexs of questions
     print("get_index",inds)
 
     #SLicing

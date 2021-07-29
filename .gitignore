@@ -130,6 +130,7 @@ dmypy.json
 
 # ignore database except readme
 DB/**
+DB_deprecated/**
 !DB/README.md
 
 # ignore personal folder of tests
