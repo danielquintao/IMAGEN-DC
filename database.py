@@ -2,10 +2,16 @@ from openpyxl import load_workbook,Workbook
 import re
 import numpy as np
 import pickle
-from get_table import *
-from join import *
 import os
-from score_extractor import *
+if __name__ == '__main__' or __package__ == '': # calling from that same file or a file in the same package
+    from get_table import *
+    from join import *
+    from score_extractor import *
+else:
+    print(__package__)
+    from .get_table import *
+    from .join import *
+    from .score_extractor import *
 class Loadable:
     """ Class loadable from files (pickle, xlsx, ...) """
     def __init__(self):
