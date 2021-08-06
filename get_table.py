@@ -37,10 +37,13 @@ def get_table(f):
         l2 = re.split('-',l[0])
         assert len(l2) == 2 #File name doesn't match the format [questionnaire_name]-(bas|fu1|fu2|fu3)
         time = ['bas','fu1','fu2','fu3'].index(l2[1])
+        empty_space = re.compile('\\s+')
         for i in range(1, len(out[0])): #starting from 1 -- don't change ID
                 name = str(out[0][i])
-                l = re.split('\s',name)
-                out[0][i] = str(time)+"_"+l[0]+"_"+l2[0]
+                name = name.strip()
+                name = empty_space.subn('_', name)[0]
+                name = re.subn('³','3',name)[0]
+                out[0][i] = str(time)+"_"+name+"_"+l2[0]
         print("loaded table {} : ({},{}) timestep {}".format(f,len(out),len(out[0]),time))
         return out
                 
@@ -70,7 +73,7 @@ def find_matching_columns(t):
         questions = sorted(list(d_names))
         tf = np.full((nb_timesteps,nb_ind,nb_questions),np.inf)
         conv = {"t":1,"f":0,"C":1,"fr":0,"en":1,"de":2,"PARIS":0,"NOTTINGHAM":1,
-                "BERLIN":2,"HAMBURG":3,"DESDEN":4,"DUBLIN":5,"MANNHEIM":6,"LONDON":7,'Y':1,'N':0,'female':1,'male':0}
+                "BERLIN":2,"HAMBURG":3,"DRESDEN":4,"DUBLIN":5,"MANNHEIM":6,"LONDON":7,'Y':1,'N':0,'female':1,'male':0}
         #Add marks for QC
         for i,c in enumerate(["E","D","C","B","A"]):
                 for j,add in enumerate(["-","","+"]):
