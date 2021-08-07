@@ -1,5 +1,3 @@
-from openpyxl import load_workbook,Workbook
-import re
 import numpy as np
 import pickle
 import os
@@ -12,6 +10,7 @@ else:
     from .get_table import *
     from .join import *
     from .score_extractor import *
+
 class Loadable:
     """ Class loadable from files (pickle, xlsx, ...) """
     def __init__(self):
@@ -39,7 +38,6 @@ class Loadable:
         self.time = np.array(self.time).astype(str)
         #Print the name of the loaded database
         print("DB loaded {}".format(fname))
-        
     def load_from_xlsx(self,fnames,compute_scores=False):
         """ Load attributes from a given list of xlsx files """
         #Load tables one by one
@@ -52,13 +50,11 @@ class Loadable:
         out = find_matching_columns(t)
         #Store data in attributes
         [self.tf,self.time,self.ind,self.q] = out
-
     def load_from_DB_folder(self,compute_scores=False):
         """ Build the db from all xslx and xslm files in DB/ folder """
         ld = os.listdir('DB/')
         ld = ['DB/'+i for i in ld if i[-5:] ==".xlsx" or i[-5:] == ".xlsm"]
-        self.load_from_xlsx(ld,compute_scores=compute_scores) # this calls the homonymous function of the class Database (which inherits from Loadable)
-        
+        self.load_from_xlsx(ld,compute_scores=compute_scores) # this calls the homonymous function of the class Database (which inherits from Loadable)      
     def save(self,fname):
         """ Save the database in a pickle file """
         #Save the database
@@ -94,6 +90,7 @@ class Indexable:
 
 class UnknownPrefix(Exception):
     pass
+
 class Searchable:
     """ Structure that makes it possible to search for all labels starting by a prefix. It's especially usefull when you want to use a Tab similar fonctionality that complete automatically your query. This way you don't need to know the exact name of questions in the database but only how it starts. Ex : for neoffi1 question just tip search_for("neoffi1") and it will return "neoffi1_neo" which is the real column name for neoffi1 in the database """
     def __init__(self):
@@ -156,17 +153,14 @@ class Searchable:
                 ls += _iter(d[k],_s+k)
             return ls
         return _iter(d,name)
-    
     def search_for(self,name):
         """ Alias for get_name """
         if isinstance(name,list):
             return [self.get_name(n) for n in name]
         return self.get_name(name)
-
     def find_all(self,name):
         """ Alias for search_for """
         return self.search_for(name)
-
     def find(self,name):
         """ Complete the prefix with the first question in lexicographic order in the DB """
         lnames = self.find_all(name)
@@ -180,14 +174,12 @@ class Database(Loadable,Indexable,Searchable):
         #Init sub classes
         Loadable.__init__(self)
         Indexable.__init__(self)
-        Searchable.__init__(self)
-        
+        Searchable.__init__(self)  
     def load_from_pickle(self,fname):
         """ Overload of Loadable.load_from_pickle to add questions to Indexable and Searchable structures """
         Loadable.load_from_pickle(self,fname)
         self.compute_indexs(self.q)
-        self.compute_names(self.q)
-        
+        self.compute_names(self.q)   
     def load_from_xlsx(self,fnames,compute_scores=False): 
         """ Overload of Loadable.load_from_xlsx to add questions to Indexable and Searchable structures """
         Loadable.load_from_xlsx(self,fnames,compute_scores=compute_scores)
@@ -197,8 +189,7 @@ class Database(Loadable,Indexable,Searchable):
         # correct(self) # -- already called from compile.py
         #Computes scores
         if compute_scores:
-            compute_score(self)
-        
+            compute_score(self)      
     def clean(self,hard_t=True,hard_q=True):
         """ Clean the database which means it will remove people who haven't answered to them.
         1st step : hard_t=True means it will remove everyone that haven't answered to questions at all timesteps (where hard=False keeps those who have answered to at least one). 
@@ -278,7 +269,6 @@ class Database(Loadable,Indexable,Searchable):
         if return_nb:
             return np.mean(t1*t2,axis=1),dbb.tf.shape[1]
         return np.mean(t1*t2,axis=1)
-    
     def correl(self,q1,q2,return_nb=False):
         dbb = self.get_questions([q1,q2])
         dbb.clean()

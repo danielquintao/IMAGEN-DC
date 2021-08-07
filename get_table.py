@@ -2,6 +2,9 @@ from openpyxl import load_workbook,Workbook
 import re
 import numpy as np
 def get_table(f):
+        """takes filename and return list of list with the contents of all the rows
+        (headers/question names are also processed)
+        """
         wb = load_workbook(f)
         s = wb.active
         def iter_rows(s):
@@ -48,6 +51,8 @@ def get_table(f):
         return out
                 
 def find_matching_columns(t):
+        """Find columns corresponding to the same question on different time steps
+        and align on the individuals (also process categorical values)"""
         def match_form(n): # n is a string
                 return n[2:].lower(),int(n[0])
         #Get matching names
@@ -69,7 +74,7 @@ def find_matching_columns(t):
         #Add dimensions
         nb_timesteps = 4
         nb_ind = len(t) # includes the header 'ID' despite the name
-        nb_questions = len(d_names) # includes the question name despite the name
+        nb_questions = len(d_names) # includes the 'ID' though not a question
         questions = sorted(list(d_names))
         tf = np.full((nb_timesteps,nb_ind,nb_questions),np.inf)
         conv = {"t":1,"f":0,"C":1,"fr":0,"en":1,"de":2,"PARIS":0,"NOTTINGHAM":1,
@@ -84,8 +89,6 @@ def find_matching_columns(t):
                         indexs_tab = d_names[q_name]
                         for index,time in indexs_tab:
                                 value = t[index_ind][index]
-                                if q_name=="abs_csf_trans" and index_ind==2254:
-                                        print(q_name,value,type(value))
                                 if value is None:
                                         value = np.inf
                                 try:
@@ -106,14 +109,8 @@ def find_matching_columns(t):
                                                         tf[time,index_ind,index_q] = value
         #tf = np.delete(tf,0,axis=2)
         tf = np.delete(tf,0,axis=1)
-        print("-",tf[:,0,0])
-        print(tf.shape)
         timesteps = np.array(["bas","fu1","fu2","fu3"]).astype(str)
         ind = np.array(t)[:,0]
         ind = np.delete(ind,0)
         questions = np.array(questions).astype(str)
-        print(tf)
-        print(questions)
-        print(timesteps)
-        print(ind)
         return tf,timesteps,ind,questions

@@ -26,3 +26,10 @@ Install instruction :
     db.tf
 ```
     
+## Some assumptions on the files:
+* All the files finish with -bas, -fu1, -fu2, or -fu3 (for baseline, followup 1, followup2, followup3 resp.)
+* The first column of each file corresponds to the individuals ID (numeric)
+* The first row of each file contains headers for each column (AKA question name). The header of the first column will be overwirrten to 'ID' no matter what is its original content.
+
+## Other relevant stuff to know  (or not)
+* Some pre-defined categorical values (like "B-", "B", "B+") are replaced by itntegers according to some pre-chosen rule. Take a look at ```get_table.py``` for more details.
