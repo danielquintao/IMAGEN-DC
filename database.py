@@ -38,23 +38,38 @@ class Loadable:
         self.time = np.array(self.time).astype(str)
         #Print the name of the loaded database
         print("DB loaded {}".format(fname))
-    def load_from_xlsx(self,fnames,compute_scores=False):
+    def load_from_xlsx(self,fnames,compute_scores,known_words):
         """ Load attributes from a given list of xlsx files """
         #Load tables one by one
         lt = []
+        irregular_columns = {}
         for f in fnames:
+            ic = check_table(f, set(list(known_words))) # get columns with unattended values for error message
+            if len(ic) > 0:
+                irregular_columns[f] = ic
             lt.append(get_table(f))
+        if len(irregular_columns) > 0:
+            print('Unexpected cells were detected in the following columns and replaced by nans (Not A Number):')
+            for f,ic in irregular_columns.items():
+                print("{}: {}".format(f, ic))
         #Join tables
         t = join(*lt)
         #Align columns
-        out = find_matching_columns(t)
+        out = find_matching_columns(t, known_words)
         #Store data in attributes
         [self.tf,self.time,self.ind,self.q] = out
-    def load_from_DB_folder(self,compute_scores=False):
+    def load_from_DB_folder(self,compute_scores=False,known_words=None):
         """ Build the db from all xslx and xslm files in DB/ folder """
+        if known_words is None:
+            known_words = {"t":1,"f":0,"C":1,"fr":0,"en":1,"de":2,"PARIS":0,"NOTTINGHAM":1,
+                "BERLIN":2,"HAMBURG":3,"DRESDEN":4,"DUBLIN":5,"MANNHEIM":6,"LONDON":7,'Y':1,'N':0,'female':1,'male':0}
+            #Add marks for QC
+            for i,c in enumerate(["E","D","C","B","A"]):
+                    for j,add in enumerate(["-","","+"]):
+                            known_words[c+add] = i*3+j
         ld = os.listdir('DB/')
         ld = ['DB/'+i for i in ld if i[-5:] ==".xlsx" or i[-5:] == ".xlsm"]
-        self.load_from_xlsx(ld,compute_scores=compute_scores) # this calls the homonymous function of the class Database (which inherits from Loadable)      
+        self.load_from_xlsx(ld,compute_scores,known_words) # this calls the homonymous function of the class Database (which inherits from Loadable)      
     def save(self,fname):
         """ Save the database in a pickle file """
         #Save the database
@@ -180,9 +195,9 @@ class Database(Loadable,Indexable,Searchable):
         Loadable.load_from_pickle(self,fname)
         self.compute_indexs(self.q)
         self.compute_names(self.q)   
-    def load_from_xlsx(self,fnames,compute_scores=False): 
+    def load_from_xlsx(self,fnames,compute_scores,known_words): 
         """ Overload of Loadable.load_from_xlsx to add questions to Indexable and Searchable structures """
-        Loadable.load_from_xlsx(self,fnames,compute_scores=compute_scores)
+        Loadable.load_from_xlsx(self,fnames,compute_scores,known_words)
         self.compute_indexs(self.q)
         self.compute_names(self.q)
         #Correct few questions due to errors in the database (especially fu3

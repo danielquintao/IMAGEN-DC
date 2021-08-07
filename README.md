@@ -15,7 +15,7 @@ Install instruction :
 ```python
     import database as db
     db = database.Database()
-    db.load_from_pickle("db.p") 
+    db.load_from_pickle("db.p")  # or db.load_from_DB_folder()
     #Questions names
     db.q
     #Ind ids
@@ -32,4 +32,4 @@ Install instruction :
 * The first row of each file contains headers for each column (AKA question name). The header of the first column will be overwirrten to 'ID' no matter what is its original content.
 
 ## Other relevant stuff to know  (or not)
-* Some pre-defined categorical values (like "B-", "B", "B+") are replaced by itntegers according to some pre-chosen rule. Take a look at ```get_table.py``` for more details.
+* Since the final table only contains numbers, ```nan```s and ```inf```s, we make it possible to predefine a convention for some categorical values in the argument ```known_words``` of ```load_from_DB_folder()```. The default convention is: {'t': 1, 'f': 0, 'fr': 0, 'en': 1, 'de': 2, 'PARIS': 0, 'NOTTINGHAM': 1, 'BERLIN': 2, 'HAMBURG': 3, 'DRESDEN': 4, 'DUBLIN': 5, 'MANNHEIM': 6, 'LONDON': 7, 'Y': 1, 'N': 0, 'female': 1, 'male': 0, 'E-': 0, 'E': 1, 'E+': 2, 'D-': 3, 'D': 4, 'D+': 5, 'C-': 6, 'C': 7, 'C+': 8, 'B-': 9, 'B': 10, 'B+': 11, 'A-': 12, 'A': 13, 'A+': 14}

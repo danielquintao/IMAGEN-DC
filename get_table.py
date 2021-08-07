@@ -1,6 +1,35 @@
 from openpyxl import load_workbook,Workbook
 import re
 import numpy as np
+
+def check_table(f, known_words_set):
+        """read table and return columns containing undefined values
+        (this is simpler than doing a similar check for each cell)
+        """
+        wb = load_workbook(f)
+        s = wb.active
+        irregular_cols = []
+        for col in s.iter_cols(values_only=True):
+                for i,val in enumerate(col):
+                        if i == 0: # header / question name
+                                continue
+                        # value is ok if: it is a number, None or trivial, a stringifyied number, or an elem of known_words 
+                        elif isinstance(val, (int, float)):
+                                continue
+                        elif val is None:
+                                continue
+                        elif isinstance(val, str):
+                                val = val.strip()
+                                if val in known_words_set:
+                                        continue
+                                try:
+                                        val = float(val)
+                                except ValueError:
+                                        # tag column as irregular and break loop (go to next column)
+                                        irregular_cols.append(col[0])
+                                        break               
+        return irregular_cols                         
+
 def get_table(f):
         """takes filename and return list of list with the contents of all the rows
         (headers/question names are also processed)
@@ -56,9 +85,11 @@ def get_table(f):
                 print("loaded table {} : ({},{}) timestep {}".format(f,len(out),len(out[0]),time))
         return out
                 
-def find_matching_columns(t):
+def find_matching_columns(t, conv):
         """Find columns corresponding to the same question on different time steps
-        and align on the individuals (also process categorical values)"""
+        and align on the individuals (also process categorical values)
+        conv is a dict of prefixed terms (str) as key and the associated numeric
+        placeholder (value)"""
         def match_form(n): # n (str) is the question name in the covention [0-3|'C']_questionname_filename
                            # (no problem if there are underscores inside questionname or filename)
                 time_prefix = int(n[0]) if n[0] != 'C' else 'C'
@@ -99,12 +130,6 @@ def find_matching_columns(t):
         nb_questions = len(d_names) # includes the 'ID' though not a question
         questions = sorted(list(d_names))
         tf = np.full((nb_timesteps,nb_ind,nb_questions),np.inf)
-        conv = {"t":1,"f":0,"C":1,"fr":0,"en":1,"de":2,"PARIS":0,"NOTTINGHAM":1,
-                "BERLIN":2,"HAMBURG":3,"DRESDEN":4,"DUBLIN":5,"MANNHEIM":6,"LONDON":7,'Y':1,'N':0,'female':1,'male':0}
-        #Add marks for QC
-        for i,c in enumerate(["E","D","C","B","A"]):
-                for j,add in enumerate(["-","","+"]):
-                        conv[c+add] = i*3+j
         for index_ind in range(1,nb_ind):
                 for index_q in range(nb_questions):
                         q_name = questions[index_q]
@@ -114,7 +139,7 @@ def find_matching_columns(t):
                                 if value is None:
                                         value = np.inf
                                 try:
-                                        tf[time,index_ind,index_q] = value
+                                        tf[time,index_ind,index_q] = value # NOTE it works even if value is a 'stringifyied' float like '0.123'
                                 except ValueError:
                                         #Try to convert it
                                         try:
@@ -126,7 +151,7 @@ def find_matching_columns(t):
                                                         value = conv[value.strip()] # strip --> remove blank spaces at extremities ('B+ ' -> 'B+')
                                                         tf[time,index_ind,index_q] = value
                                                 except KeyError:
-                                                        print("error : '{}' not understood".format(value))
+                                                        # print("error : '{}' not understood".format(value))
                                                         value = np.nan #Error value
                                                         tf[time,index_ind,index_q] = value
         #tf = np.delete(tf,0,axis=2)
