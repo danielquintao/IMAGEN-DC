@@ -27,7 +27,7 @@ Install instruction :
 ```
     
 ## Some assumptions on the files:
-* All the files finish with -bas, -fu1, -fu2, or -fu3 (for baseline, followup 1, followup2, followup3 resp.)
+* All the files reporting observations for a time point finish with -bas, -fu1, -fu2, or -fu3 (for baseline, followup 1, followup2, followup3 resp.). Constant data should be put in files without those terminations (data will be repeated for all the timesteps).
 * The first column of each file corresponds to the individuals ID (numeric)
 * The first row of each file contains headers for each column (AKA question name). The header of the first column will be overwirrten to 'ID' no matter what is its original content.
 

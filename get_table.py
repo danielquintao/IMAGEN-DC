@@ -36,10 +36,13 @@ def get_table(f):
         #         del out[i]
         #Post process 2 : add timestep and questionnaire name to labels and cut everything after the first space
         l = re.split("/",f)
-        l = re.split("\.",l[-1])                
+        l = re.split("\.",l[-1])  
+        if re.search('_(bas|fu[1-3])', l[0][-4:]):
+                l[0][-4] = '-' # fix common error of naming files with _xxx instead of -xxx              
         l2 = re.split('-',l[0])
-        assert len(l2) == 2 #File name doesn't match the format [questionnaire_name]-(bas|fu1|fu2|fu3)
-        time = ['bas','fu1','fu2','fu3'].index(l2[1])
+        # create a time prefix to be used later by find_matching_columns:
+        # (1-3 for baseline, FU1, FU2, FU3; and 'C' as in 'Constant' for files with no time suffix)
+        time = ['bas','fu1','fu2','fu3'].index(l2[1]) if len(l2) == 2 else 'C'
         empty_space = re.compile('\\s+')
         for i in range(1, len(out[0])): #starting from 1 -- don't change ID
                 name = str(out[0][i])
@@ -47,14 +50,19 @@ def get_table(f):
                 name = empty_space.subn('_', name)[0]
                 name = re.subn('³','3',name)[0]
                 out[0][i] = str(time)+"_"+name+"_"+l2[0]
-        print("loaded table {} : ({},{}) timestep {}".format(f,len(out),len(out[0]),time))
+        if time == 'C':
+                print("loaded table {} : ({},{}) (constant on time)".format(f,len(out),len(out[0])))
+        else:
+                print("loaded table {} : ({},{}) timestep {}".format(f,len(out),len(out[0]),time))
         return out
                 
 def find_matching_columns(t):
         """Find columns corresponding to the same question on different time steps
         and align on the individuals (also process categorical values)"""
-        def match_form(n): # n is a string
-                return n[2:].lower(),int(n[0])
+        def match_form(n): # n (str) is the question name in the covention [0-3|'C']_questionname_filename
+                           # (no problem if there are underscores inside questionname or filename)
+                time_prefix = int(n[0]) if n[0] != 'C' else 'C'
+                return n[2:].lower(),time_prefix
         #Get matching names
         names = t[0]
         d_names = {} #Match dictionary
@@ -65,10 +73,24 @@ def find_matching_columns(t):
                 else: # index == 0 -> n is an ID
                         m_form,time = n,-1  # -1 -> IDs will be inserted as 'fu3' in the final tensor
                 try:
-                        d_names[m_form].append((index,time))
+                        if isinstance(time, int):
+                                d_names[m_form].append((index,time))
+                        else: # time == 'C', add constant values to all time points
+                                assert time == 'C'
+                                d_names[m_form].append((index,0))
+                                d_names[m_form].append((index,1))
+                                d_names[m_form].append((index,2))
+                                d_names[m_form].append((index,3))
                         # match_names.append(n) -- debug
                 except KeyError:
-                        d_names[m_form] = [(index,time)]
+                        if isinstance(time, int):
+                                d_names[m_form] = [(index,time)]
+                        else: # time == 'C', add constant values to all time points
+                                assert time == 'C'
+                                d_names[m_form] = [(index,0)]
+                                d_names[m_form].append((index,1))
+                                d_names[m_form].append((index,2))
+                                d_names[m_form].append((index,3))
         #print(d_names)
         #print(match_names,len(match_names))
         #Add dimensions

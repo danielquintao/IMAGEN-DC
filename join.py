@@ -2,7 +2,9 @@ from operator import itemgetter
 import numpy as np
 
 def join(*t):
-        d = {}
+        d = {} # KEY: -inf (headers) or individual's id
+               # VAL: list of values per question (including ID), with Nones for alignment
+               # NOTE questions are tagged with the timestep, e.g. '3_xxx' for 'xxx' in FU3
         #Addition phase
         def add_dict(d,l1,offset=0):
                 key = l1[0]
